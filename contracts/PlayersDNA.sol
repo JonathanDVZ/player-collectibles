@@ -4,7 +4,7 @@ pragma solidity ^0.8.9;
 contract PlayersDNA {
     string[] private _country = ["argentina", "brasil", "chile", "uruguay"];
 
-    string[] private _category = ["default", "heroes", "lengendary"];
+    string[] private _category = ["default", "heroes", "legendary"];
 
     // This pseudo random function is determistic and should not be used on production
     function deterministicPseudoRandomDNA(uint256 _tokenId, address _minter)
