@@ -92,7 +92,7 @@ pragma solidity ^0.8.9;
 contract PlayersDNA {
     string[] private _country = ["argentina", "brasil", "chile", "uruguay"];
 
-    string[] private _category = ["default", "heroes", "lengendary"];
+    string[] private _category = ["default", "heroes", "legendary"];
 
     // This pseudo random function is determistic and should not be used on production
     function deterministicPseudoRandomDNA(uint256 _tokenId, address _minter)
@@ -238,30 +238,33 @@ library Counters {
     }
 }
 
-// File @openzeppelin/contracts/utils/Context.sol@v4.7.3
+// File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v4.7.3
 
-// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/IERC721Receiver.sol)
 
 pragma solidity ^0.8.0;
 
 /**
- * @dev Provides information about the current execution context, including the
- * sender of the transaction and its data. While these are generally available
- * via msg.sender and msg.data, they should not be accessed in such a direct
- * manner, since when dealing with meta-transactions the account sending and
- * paying for execution may not be the actual sender (as far as an application
- * is concerned).
- *
- * This contract is only required for intermediate, library-like contracts.
+ * @title ERC721 token receiver interface
+ * @dev Interface for any contract that wants to support safeTransfers
+ * from ERC721 asset contracts.
  */
-abstract contract Context {
-    function _msgSender() internal view virtual returns (address) {
-        return msg.sender;
-    }
-
-    function _msgData() internal view virtual returns (bytes calldata) {
-        return msg.data;
-    }
+interface IERC721Receiver {
+    /**
+     * @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
+     * by `operator` from `from`, this function is called.
+     *
+     * It must return its Solidity selector to confirm the token transfer.
+     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+     *
+     * The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
+     */
+    function onERC721Received(
+        address operator,
+        address from,
+        uint256 tokenId,
+        bytes calldata data
+    ) external returns (bytes4);
 }
 
 // File @openzeppelin/contracts/utils/Strings.sol@v4.7.3
@@ -533,6 +536,94 @@ interface IERC721 is IERC165 {
         returns (bool);
 }
 
+// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.7.3
+
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Implementation of the {IERC165} interface.
+ *
+ * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
+ * for the additional interface id that will be supported. For example:
+ *
+ * ```solidity
+ * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+ *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
+ * }
+ * ```
+ *
+ * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
+ */
+abstract contract ERC165 is IERC165 {
+    /**
+     * @dev See {IERC165-supportsInterface}.
+     */
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
+        return interfaceId == type(IERC165).interfaceId;
+    }
+}
+
+// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol@v4.7.3
+
+// OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/IERC721Metadata.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
+ * @dev See https://eips.ethereum.org/EIPS/eip-721
+ */
+interface IERC721Metadata is IERC721 {
+    /**
+     * @dev Returns the token collection name.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the token collection symbol.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
+     */
+    function tokenURI(uint256 tokenId) external view returns (string memory);
+}
+
+// File @openzeppelin/contracts/utils/Context.sol@v4.7.3
+
+// OpenZeppelin Contracts v4.4.1 (utils/Context.sol)
+
+pragma solidity ^0.8.0;
+
+/**
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes calldata) {
+        return msg.data;
+    }
+}
+
 // File @openzeppelin/contracts/utils/Address.sol@v4.7.3
 
 // OpenZeppelin Contracts (last updated v4.7.0) (utils/Address.sol)
@@ -791,97 +882,6 @@ library Address {
                 revert(errorMessage);
             }
         }
-    }
-}
-
-// File @openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol@v4.7.3
-
-// OpenZeppelin Contracts v4.4.1 (token/ERC721/extensions/IERC721Metadata.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @title ERC-721 Non-Fungible Token Standard, optional metadata extension
- * @dev See https://eips.ethereum.org/EIPS/eip-721
- */
-interface IERC721Metadata is IERC721 {
-    /**
-     * @dev Returns the token collection name.
-     */
-    function name() external view returns (string memory);
-
-    /**
-     * @dev Returns the token collection symbol.
-     */
-    function symbol() external view returns (string memory);
-
-    /**
-     * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
-     */
-    function tokenURI(uint256 tokenId) external view returns (string memory);
-}
-
-// File @openzeppelin/contracts/token/ERC721/IERC721Receiver.sol@v4.7.3
-
-// OpenZeppelin Contracts (last updated v4.6.0) (token/ERC721/IERC721Receiver.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @title ERC721 token receiver interface
- * @dev Interface for any contract that wants to support safeTransfers
- * from ERC721 asset contracts.
- */
-interface IERC721Receiver {
-    /**
-     * @dev Whenever an {IERC721} `tokenId` token is transferred to this contract via {IERC721-safeTransferFrom}
-     * by `operator` from `from`, this function is called.
-     *
-     * It must return its Solidity selector to confirm the token transfer.
-     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
-     *
-     * The selector can be obtained in Solidity with `IERC721Receiver.onERC721Received.selector`.
-     */
-    function onERC721Received(
-        address operator,
-        address from,
-        uint256 tokenId,
-        bytes calldata data
-    ) external returns (bytes4);
-}
-
-// File @openzeppelin/contracts/utils/introspection/ERC165.sol@v4.7.3
-
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/ERC165.sol)
-
-pragma solidity ^0.8.0;
-
-/**
- * @dev Implementation of the {IERC165} interface.
- *
- * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
- * for the additional interface id that will be supported. For example:
- *
- * ```solidity
- * function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
- *     return interfaceId == type(MyInterface).interfaceId || super.supportsInterface(interfaceId);
- * }
- * ```
- *
- * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
- */
-abstract contract ERC165 is IERC165 {
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override
-        returns (bool)
-    {
-        return interfaceId == type(IERC165).interfaceId;
     }
 }
 
