@@ -2,11 +2,17 @@
 pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./Base64.sol";
 import "./PlayersDNA.sol";
 
-contract PlayersCollectibles is ERC721, ERC721Enumerable, PlayersDNA {
+contract PlayersCollectibles is
+    ERC721,
+    ERC721URIStorage,
+    ERC721Enumerable,
+    PlayersDNA
+{
     using Counters for Counters.Counter;
     using Strings for uint256;
 
@@ -22,13 +28,31 @@ contract PlayersCollectibles is ERC721, ERC721Enumerable, PlayersDNA {
         uint256 current = _idCounter.current();
         require(current < maxSupply, "No PlayersCollectibles left :(");
 
-        tokenDNA[current] = deterministicPseudoRandomDNA(current, msg.sender);
+        uint256 _dna = deterministicPseudoRandomDNA(current, msg.sender);
+        tokenDNA[current] = _dna;
         _safeMint(msg.sender, current);
+
+        // set metadata 
+        string memory params;
+
+        params = string(
+            abi.encodePacked(
+                "raw/upload/neofutbol/",
+                getCountry(_dna),
+                "/",
+                getCategory(_dna),
+                "/",
+                getPlayerNumber(_dna).toString(),
+                ".json"
+            )
+        );
+        _setTokenURI(current, params);
         _idCounter.increment();
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return "https://res.cloudinary.com/sagarciaescobar/raw/upload/";
+        return
+            "https://res.cloudinary.com/sagarciaescobar/";
     }
 
     function _paramsURI(uint256 _dna) internal view returns (string memory) {
@@ -36,6 +60,7 @@ contract PlayersCollectibles is ERC721, ERC721Enumerable, PlayersDNA {
 
         params = string(
             abi.encodePacked(
+                "image/upload/neofutbol/",
                 getCountry(_dna),
                 "/",
                 getCategory(_dna),
@@ -55,10 +80,17 @@ contract PlayersCollectibles is ERC721, ERC721Enumerable, PlayersDNA {
         return string(abi.encodePacked(baseURI, paramsURI));
     }
 
+    function metadataByDNA(uint256 _dna) public view returns (string memory) {
+        string memory baseURI = _baseURI();
+        string memory paramsURI = _paramsURI(_dna);
+
+        return string(abi.encodePacked(baseURI, paramsURI));
+    }
+
     function tokenURI(uint256 tokenId)
         public
         view
-        override
+        override(ERC721, ERC721URIStorage)
         returns (string memory)
     {
         require(
@@ -71,12 +103,16 @@ contract PlayersCollectibles is ERC721, ERC721Enumerable, PlayersDNA {
 
         string memory jsonURI = Base64.encode(
             abi.encodePacked(
-                '{ "name": "PlayersDNA #',
+                '{ "id": "',
+                tokenId.toString(),
+                '", "name": "PlayersDNA #',
                 tokenId.toString(),
                 '", "description": "Football player from ',
                 getCountry(dna),
                 '", "image": "',
                 image,
+                '","metadata":"',
+                super.tokenURI(tokenId),
                 '"}'
             )
         );
@@ -101,5 +137,12 @@ contract PlayersCollectibles is ERC721, ERC721Enumerable, PlayersDNA {
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
+    }
+
+    function _burn(uint256 tokenId)
+        internal
+        override(ERC721, ERC721URIStorage)
+    {
+        super._burn(tokenId);
     }
 }
