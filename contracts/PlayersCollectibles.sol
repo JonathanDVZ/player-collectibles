@@ -28,7 +28,7 @@ contract PlayersCollectibles is ERC721, ERC721Enumerable, PlayersDNA {
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return "https://playersnft-b264c.web.app/players/";
+        return "https://res.cloudinary.com/sagarciaescobar/raw/upload/";
     }
 
     function _paramsURI(uint256 _dna) internal view returns (string memory) {
